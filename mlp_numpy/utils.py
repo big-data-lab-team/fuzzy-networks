@@ -4,6 +4,7 @@ import glob
 
 DATA_DIR = 'results'
 
+
 class ExperimentResults:
     def __init__(self, subdir=None):
         self.dir = subdir or self.get_experiment_dir()
