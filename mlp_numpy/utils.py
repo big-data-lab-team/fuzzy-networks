@@ -1,12 +1,14 @@
 import pickle
 import os
+import glob
 
 DATA_DIR = 'results'
+
 
 class ExperimentResults:
     def __init__(self, subdir=None):
         self.dir = subdir or self.get_experiment_dir()
-        print(f'Saving results in {self.dir}')
+        print(f'Using directory {self.dir}')
 
     @staticmethod
     def get_experiment_dir():
@@ -28,3 +30,7 @@ class ExperimentResults:
         file_path = os.path.join(DATA_DIR, self.dir, f"{name}.pickle")
         with open(file_path, 'rb') as f:
             return pickle.load(f)
+
+    def list(self, pattern='*'):
+        file_path = os.path.join(DATA_DIR, self.dir, f"{pattern}.pickle")
+        return [os.path.basename(path)[:-7] for path in glob.iglob(file_path)]

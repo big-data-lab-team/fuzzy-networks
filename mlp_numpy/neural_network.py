@@ -142,11 +142,16 @@ class NN(object):
     def compute_loss_and_accuracy(self, X, y):
         one_y = y
         y = np.argmax(y, axis=1)  # Change y to integers
-        cache = self.forward(X)
-        predictions = np.argmax(cache[f"Z{self.n_hidden + 1}"], axis=1)
+        proba = self.predict_proba(X)
+        predictions = np.argmax(proba, axis=1)
         accuracy = np.mean(y == predictions)
-        loss = self.loss(cache[f"Z{self.n_hidden + 1}"], one_y)
+        loss = self.loss(proba, one_y)
+
         return loss, accuracy, predictions
+
+    def predict_proba(self, X):
+        cache = self.forward(X)
+        return cache[f"Z{self.n_hidden + 1}"]
 
     def train_loop(self, n_epochs=None):
         n_epochs = n_epochs or self.default_n_epochs
