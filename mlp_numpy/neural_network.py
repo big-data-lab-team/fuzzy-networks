@@ -26,26 +26,22 @@ def load_mnist():
 
 class NN(object):
     def __init__(self,
-                 hidden_dims=(784, 256), # 818970 parameters
+                 architecture,
                  epsilon=1e-6,
                  lr=7e-4,
                  batch_size=64,
                  seed=None,
                  activation="relu",
-                 init_method="glorot",
                  n_epochs=10,
                  data=None
                  ):
 
-        self.hidden_dims = hidden_dims
-        self.n_hidden = len(hidden_dims)
+        self.architecture = architecture
         self.lr = lr
         self.batch_size = batch_size
-        self.init_method = init_method
         self.seed = seed
         self.activation_str = activation
         self.epsilon = epsilon
-        self.init_method = init_method
         self.default_n_epochs = n_epochs
 
         self.train_logs = {'train_accuracy': [], 'validation_accuracy': [], 'train_loss': [], 'validation_loss': []}
@@ -53,86 +49,32 @@ class NN(object):
         self.train, self.valid, self.test = data
 
 
-    def initialize_weights(self, dims):
+    def initialize_weights(self, dim_input):
         if self.seed is not None:
             np.random.seed(self.seed)
-
-        self.weights = {}
-        all_dims = [dims[0]] + list(self.hidden_dims) + [dims[1]]
-        for layer_n in range(1, self.n_hidden + 2):
-            if self.init_method == 'glorot':
-                bound = np.sqrt(6 / (all_dims[layer_n-1] + all_dims[layer_n]))
-                self.weights[f"W{layer_n}"] = np.random.uniform(-bound, bound, size=all_dims[layer_n-1:layer_n+1])
-            elif self.init_method == 'normal':
-                self.weights[f"W{layer_n}"] = np.random.normal(0, 1, size=all_dims[layer_n-1:layer_n+1])
-            elif self.init_method == 'zero':
-                self.weights[f"W{layer_n}"] = np.zeros(all_dims[layer_n-1:layer_n+1])
-            else:
-                raise NotImplementedError(f'Activation method {self.init_method} not implemented')
-            self.weights[f"b{layer_n}"] = np.zeros((1, all_dims[layer_n]))
-
-    def relu(self, x, grad=False):
-        if grad:
-            return (x > 0).astype(np.float64)
-        return np.maximum(0, x)
-
-    def sigmoid(self, x, grad=False):
-        sigma_x = 1 / (1 + np.exp(-x))
-        if grad:
-            return sigma_x * (1-sigma_x)
-        return sigma_x
-
-    def tanh(self, x, grad=False):
-        tanh_x = np.tanh(x)
-        if grad:
-            return 1 - tanh_x**2
-        return tanh_x
-
-    def activation(self, x, grad=False):
-        if self.activation_str == "relu":
-            return self.relu(x, grad)
-        elif self.activation_str == "sigmoid":
-            return self.sigmoid(x, grad)
-        elif self.activation_str == "tanh":
-            return self.tanh(x, grad)
-        else:
-            raise Exception("invalid")
-        return 0
+        dim_prev_layer_ouput = dim_input
+        for layer in self.architecture:
+            layer.initialize(dim_prev_layer_ouput)
+            dim_prev_layer_ouput = layer.dim_ouput
 
     def softmax(self, x):
         x = x - x.max(axis=-1, keepdims=True) # To prevent overflow when applying exp to x
         exp_x = np.exp(x)
         return exp_x / exp_x.sum(axis=-1, keepdims=True)
 
-    def forward(self, x):
-        cache = {"Z0": x}
-        for layer_n in range(1, self.n_hidden + 1):
-            cache[f"A{layer_n}"] = cache[f"Z{layer_n-1}"] @ self.weights[f"W{layer_n}"] + self.weights[f"b{layer_n}"]
-            cache[f"Z{layer_n}"] = self.activation(cache[f"A{layer_n}"])
-        layer_n = self.n_hidden + 1
-        cache[f"A{layer_n}"] = cache[f"Z{layer_n-1}"] @ self.weights[f"W{layer_n}"] + self.weights[f"b{layer_n}"]
-        cache[f"Z{layer_n}"] = self.softmax(cache[f"A{layer_n}"])
+    def forward(self, x): 
+        for layer in self.architecture:
+            x = layer.forward(x)
+        return self.softmax(x)
 
-        return cache
+    def backward(self, outputs, labels):
+        error = outputs - labels
+        for layer in reversed(self.architecture):
+            error = layer.backward(error)
 
-    def backward(self, cache, labels):
-        output = cache[f"Z{self.n_hidden + 1}"]
-        grads = {}
-        grads[f"dA{self.n_hidden + 1}"] = output - labels
-        for layer_n in range(self.n_hidden + 1, 1, -1):
-            grads[f"dW{layer_n}"] = (cache[f"Z{layer_n-1}"].T @ grads[f"dA{layer_n}"]) / cache[f"Z{layer_n-1}"].shape[0]
-            grads[f"db{layer_n}"] = grads[f"dA{layer_n}"].mean(0, keepdims=True)
-            grads[f"dZ{layer_n-1}"] = (self.weights[f"W{layer_n}"] @ np.expand_dims(grads[f"dA{layer_n}"], 2)).squeeze()
-            grads[f"dA{layer_n-1}"] = grads[f"dZ{layer_n-1}"] * self.activation(cache[f"A{layer_n-1}"], grad=True)
-        grads[f"dW1"] = (cache[f"Z0"].T @ grads[f"dA1"]) / cache["Z0"].shape[0]
-        grads[f"db1"] = grads[f"dA1"].mean(0, keepdims=True)
-
-        return grads
-
-    def update(self, grads):
-        for layer_n in range(1, self.n_hidden + 2):
-            self.weights[f"W{layer_n}"] -= self.lr * grads[f"dW{layer_n}"]
-            self.weights[f"b{layer_n}"] -= self.lr * grads[f"db{layer_n}"]
+    def update(self):
+        for layer in self.architecture:
+            layer.update(self.lr)
 
     def loss(self, prediction, labels):
         prediction[np.where(prediction < self.epsilon)] = self.epsilon
@@ -150,15 +92,13 @@ class NN(object):
         return loss, accuracy, predictions
 
     def predict_proba(self, X):
-        cache = self.forward(X)
-        return cache[f"Z{self.n_hidden + 1}"]
+        return self.forward(X)
 
     def train_loop(self, n_epochs=None):
         n_epochs = n_epochs or self.default_n_epochs
         X_train, y_train = self.train
         y_onehot = y_train
-        dims = [X_train.shape[1], y_onehot.shape[1]]
-        self.initialize_weights(dims)
+        self.initialize_weights(X_train.shape[1:])
 
         n_batches = int(np.ceil(X_train.shape[0] / self.batch_size))
 
@@ -166,9 +106,9 @@ class NN(object):
             for batch in range(n_batches):
                 minibatchX = X_train[self.batch_size * batch:self.batch_size * (batch + 1), :]
                 minibatchY = y_onehot[self.batch_size * batch:self.batch_size * (batch + 1), :]
-                cache = self.forward(minibatchX)
-                grads = self.backward(cache, minibatchY)
-                self.update(grads)
+                outputs = self.forward(minibatchX)
+                self.backward(outputs, minibatchY)
+                self.update()
                 n_char = int(50*batch/n_batches)
                 print('\r[' + '='*n_char + '>' + ' '*(49-n_char) + ']', end='')
             print('\r[' + '='*50 + ']')
@@ -191,3 +131,45 @@ class NN(object):
         X_test, y_test = self.test
         test_loss, test_accuracy, _ = self.compute_loss_and_accuracy(X_test, y_test)
         return test_loss, test_accuracy
+
+class Dense:
+    def __init__(self, n_neuron):
+        self.n_neuron = n_neuron
+        self.params = {}
+        self.grads = {}
+        self.cache = {}
+
+    def forward(self, X):
+        self.cache["X"] = X
+        # import pdb ; pdb.set_trace()
+        return X @ self.params["W"] + self.params["b"]
+
+    def backward(self, dA):
+        self.grads["dW"] = (self.cache['X'].T @ dA) / self.cache['X'].shape[0]
+        self.grads["db"] = dA.mean(0, keepdims=True)
+        return (self.params["W"] @ np.expand_dims(dA, 2)).squeeze()
+
+    def initialize(self, dim_input):
+        assert len(dim_input) == 1
+        self.dim_ouput = (self.n_neuron,)
+        bound = np.sqrt(6 / (dim_input[-1] + self.n_neuron))
+        self.params["W"] = np.random.uniform(-bound, bound, size=(dim_input[-1], self.n_neuron))
+        self.params["b"] = np.zeros((1, self.n_neuron))
+
+    def update(self, lr):
+        self.params["W"] -= lr * self.grads["dW"]
+        self.params["b"] -= lr * self.grads["db"]
+
+class ReLU:
+    def __init__(self):
+        self.grads = {}
+        self.cache = {}
+    def forward(self, A):
+        self.cache["A"] = A 
+        return np.maximum(0, A)
+    def backward(self, dZ):
+        return dZ * (self.cache["A"] > 0).astype(np.float64)
+    def initialize(self, dim_input):
+        self.dim_ouput = dim_input
+    def update(self, lr):
+        pass
