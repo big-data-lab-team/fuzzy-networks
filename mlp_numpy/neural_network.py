@@ -160,6 +160,66 @@ class Dense:
         self.params["W"] -= lr * self.grads["dW"]
         self.params["b"] -= lr * self.grads["db"]
 
+
+def conv2d(X, f):
+    """
+        X: input data (batch_n, H, W, channel)
+        f: kernel weights (batch_n, H', W', channel_input, channel_output)    
+    """
+    shape_virtual_tensor = X.shape[:1] + f.shape[:2] + tuple(np.subtract(X.shape[1:3], f.shape[:2]) + 1) + X.shape[3:]
+    strd = np.lib.stride_tricks.as_strided
+    # import pdb; pdb.set_trace()
+    virtual_tensor = strd(X, shape=shape_virtual_tensor, strides=X.strides[:1] + X.strides[1:3] * 2 + X.strides[3:])
+    # print(virtual_tensor.shape)
+    return np.einsum('ijmn,bijklm->bkln', f, virtual_tensor)
+    # b: batch number
+    # i: height in kernel
+    # j: width in kernel
+    # k: height of kernel in input
+    # l: width of kernel in input
+    # m: channel from input
+    # n: channel from output    
+
+class Convolution():
+    def __init__(self, kernel_size, n_channel):
+        self.kernel_size = tuple(kernel_size)
+        self.n_channel = n_channel
+        self.grads = {}
+        self.cache = {}
+        self.params = {}
+    
+    def forward(self, X):
+        self.cache["X"] = X
+        return conv2d(X, self.params["W"]) + self.params["b"]
+        
+    def initialize(self, dim_input):
+        self.dim_output = tuple(np.substract(dim_input[:2], self.kernel_size) + 1) + (self.n_channel,)
+        
+        # Inspired from Keras https://github.com/keras-team/keras/blob/7a39b6c62d43c25472b2c2476bd2a8983ae4f682/keras/initializers.py#L462
+        receptive_field_size = np.prod(self.kernel_size[0])
+        fan_in = dim_input[-1] * receptive_field_size
+        fan_out = self.n_channel * receptive_field_size
+        bound = np.sqrt(6 / (fan_in + fan_out))
+        self.params["W"] = np.random.uniform(-bound, bound, size=(self.kernel_size + (dim_input[-1],) + (self.n_channel,)))
+        self.params["b"] = np.zeros((1, 1, 1, self.n_channel))
+    
+    def backward(self, error):
+        # error dim: dim of output
+        # See https://www.jefkine.com/general/2016/09/05/backpropagation-in-convolutional-neural-networks/
+        self.grads["dW"] = np.transpose(conv2d(np.transpose(self.cache["X"], [3, 1, 2, 0]), np.transpose(error, [1, 2, 0, 3])), [1, 2, 0, 3])
+        self.grads["dB"] = error.sum(axis=(0, 1))
+
+        return conv2d(error, self.params["W"].transpose(2, 3))
+
+
+    def update(self, lr):
+        self.params["W"] -= lr * self.grads["dW"]
+        self.params["b"] -= lr * self.grads["db"]
+
+class Pooling():
+    pass
+
+
 class ReLU:
     def __init__(self):
         self.grads = {}
