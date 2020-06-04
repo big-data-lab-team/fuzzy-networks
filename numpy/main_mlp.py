@@ -3,17 +3,14 @@ import uuid
 import numpy as np
 
 import utils
-from neural_network import NN, load_mnist
-
+from neural_network import NN, Dense, ReLU, load_mnist
 
 def train():
     hyperparameters = {
-        'hidden_dims': (784, 256),
+        'architecture': (Dense(784), ReLU(), Dense(256), ReLU(), Dense(10)),
         'epsilon': 1e-6,
         'lr': 5e-2,
         'batch_size': 64,
-        'activation': "relu",
-        'init_method': "glorot",
         'n_epochs': 15
     }
     hyperparameters['seed'] = np.random.randint(1e5)
@@ -21,7 +18,7 @@ def train():
     mnist = load_mnist()
     nn = NN(data=mnist, **hyperparameters)
 
-    train_logs = nn.train_loop()
+    train_logs = nn.train_loop(eval_acc=True)
 
     test_results = nn.evaluate()
 
