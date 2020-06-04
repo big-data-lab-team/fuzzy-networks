@@ -1,8 +1,7 @@
-import numpy as np 
-import tensorflow as tf
-
 
 def load_cifar10():
+    import numpy as np 
+    import tensorflow as tf
 
     (images_train, labels_train),(images_test,labels_test) = tf.keras.datasets.cifar10.load_data()
 
@@ -20,3 +19,5 @@ def load_cifar10():
     
     labels_train = one_hot(labels_train)
     labels_test = one_hot(labels_test)
+    
+    return images_train, images_test, labels_train, labels_test

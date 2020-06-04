@@ -1,5 +1,5 @@
 import numpy as np
-
+from cifar10_prep import load_cifar10
 import utils
 from neural_network import NN, Convolution, Flatten, Dense, ReLU, load_mnist
 
