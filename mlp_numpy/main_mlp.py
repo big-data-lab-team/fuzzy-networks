@@ -15,7 +15,7 @@ hyperparameters['seed'] = np.random.randint(1e5)
 mnist = load_mnist()
 nn = NN(data=mnist, **hyperparameters)
 
-train_logs = nn.train_loop()
+train_logs = nn.train_loop(eval_acc=True)
 
 test_results = nn.evaluate()
 

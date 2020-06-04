@@ -94,7 +94,7 @@ class NN(object):
     def predict_proba(self, X):
         return self.forward(X)
 
-    def train_loop(self, n_epochs=None):
+    def train_loop(self, n_epochs=None, eval_acc=False):
         n_epochs = n_epochs or self.default_n_epochs
         X_train, y_train = self.train
         y_onehot = y_train
@@ -113,17 +113,17 @@ class NN(object):
                 print('\r[' + '='*n_char + '>' + ' '*(49-n_char) + ']', end='')
             print('\r[' + '='*50 + ']')
 
+            if eval_acc:
+                X_train, y_train = self.train
+                train_loss, train_accuracy, _ = self.compute_loss_and_accuracy(X_train, y_train)
+                X_valid, y_valid = self.valid
+                valid_loss, valid_accuracy, _ = self.compute_loss_and_accuracy(X_valid, y_valid)
 
-            # X_train, y_train = self.train
-            # train_loss, train_accuracy, _ = self.compute_loss_and_accuracy(X_train, y_train)
-            # X_valid, y_valid = self.valid
-            # valid_loss, valid_accuracy, _ = self.compute_loss_and_accuracy(X_valid, y_valid)
-
-            # self.train_logs['train_accuracy'].append(train_accuracy)
-            # self.train_logs['validation_accuracy'].append(valid_accuracy)
-            # self.train_logs['train_loss'].append(train_loss)
-            # self.train_logs['validation_loss'].append(valid_loss)
-            # print(f"Epoch {epoch}: train_accuracy={train_accuracy:.3f}, valid_accuracy={valid_accuracy:.3f}, train_loss={train_loss:1.2e}, valid_loss={valid_loss:1.2e}")
+                self.train_logs['train_accuracy'].append(train_accuracy)
+                self.train_logs['validation_accuracy'].append(valid_accuracy)
+                self.train_logs['train_loss'].append(train_loss)
+                self.train_logs['validation_loss'].append(valid_loss)
+                print(f"Epoch {epoch}: train_accuracy={train_accuracy:.3f}, valid_accuracy={valid_accuracy:.3f}, train_loss={train_loss:1.2e}, valid_loss={valid_loss:1.2e}")
 
         return self.train_logs
 
