@@ -9,7 +9,7 @@ if len(sys.argv) < 2:
 if len(sys.argv) < 3:
     docker_image_tag = 'no-mca'
 else:
-    docker_image_tag = sys.argv[2]
+    docker_image_tag = sys.argv[2].replace(' ', '_')
 experiment_dir = sys.argv[1]
 
 

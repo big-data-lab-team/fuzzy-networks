@@ -8,7 +8,8 @@ DATA_DIR = 'results'
 class ExperimentResults:
     def __init__(self, subdir=None):
         self.dir = subdir or self.get_experiment_dir()
-        print(f'Using directory {self.dir}')
+        if subdir is None:
+            print(f'Using directory {self.dir}')
 
     @staticmethod
     def get_experiment_dir():
