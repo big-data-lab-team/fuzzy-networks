@@ -5,22 +5,22 @@ import gzip
 def one_hot(y, n_classes=10):
     return np.eye(n_classes)[y]
 
-def load_mnist():
+def load_mnist(shape=(784,)):
     data_file = gzip.open("mnist.pkl.gz", "rb")
     train_data, val_data, test_data = pickle.load(data_file, encoding="latin1")
     data_file.close()
 
     train_inputs = [np.reshape(x, (784, 1)) for x in train_data[0]]
     train_results = [one_hot(y, 10) for y in train_data[1]]
-    train_data = np.array(train_inputs).reshape(-1, 784), np.array(train_results).reshape(-1, 10)
+    train_data = np.array(train_inputs).reshape(-1, *shape), np.array(train_results).reshape(-1, 10)
 
     val_inputs = [np.reshape(x, (784, 1)) for x in val_data[0]]
     val_results = [one_hot(y, 10) for y in val_data[1]]
-    val_data = np.array(val_inputs).reshape(-1, 784), np.array(val_results).reshape(-1, 10)
+    val_data = np.array(val_inputs).reshape(-1, *shape), np.array(val_results).reshape(-1, 10)
 
     test_inputs = [np.reshape(x, (784, 1)) for x in test_data[0]]
     test_results = [one_hot(y, 10) for y in test_data[1]]
-    test_data = np.array(test_inputs).reshape(-1, 784), np.array(test_results).reshape(-1, 10)
+    test_data = np.array(test_inputs).reshape(-1, *shape), np.array(test_results).reshape(-1, 10)
 
     return train_data, val_data, test_data
 
@@ -52,10 +52,10 @@ class NN(object):
     def initialize_weights(self, dim_input):
         if self.seed is not None:
             np.random.seed(self.seed)
-        dim_prev_layer_ouput = dim_input
+        dim_prev_layer_output = dim_input
         for layer in self.architecture:
-            layer.initialize(dim_prev_layer_ouput)
-            dim_prev_layer_ouput = layer.dim_ouput
+            layer.initialize(dim_prev_layer_output)
+            dim_prev_layer_output = layer.dim_output
 
     def softmax(self, x):
         x = x - x.max(axis=-1, keepdims=True) # To prevent overflow when applying exp to x
@@ -114,16 +114,16 @@ class NN(object):
             print('\r[' + '='*50 + ']')
 
 
-            X_train, y_train = self.train
-            train_loss, train_accuracy, _ = self.compute_loss_and_accuracy(X_train, y_train)
-            X_valid, y_valid = self.valid
-            valid_loss, valid_accuracy, _ = self.compute_loss_and_accuracy(X_valid, y_valid)
+            # X_train, y_train = self.train
+            # train_loss, train_accuracy, _ = self.compute_loss_and_accuracy(X_train, y_train)
+            # X_valid, y_valid = self.valid
+            # valid_loss, valid_accuracy, _ = self.compute_loss_and_accuracy(X_valid, y_valid)
 
-            self.train_logs['train_accuracy'].append(train_accuracy)
-            self.train_logs['validation_accuracy'].append(valid_accuracy)
-            self.train_logs['train_loss'].append(train_loss)
-            self.train_logs['validation_loss'].append(valid_loss)
-            print(f"Epoch {epoch}: train_accuracy={train_accuracy:.3f}, valid_accuracy={valid_accuracy:.3f}, train_loss={train_loss:1.2e}, valid_loss={valid_loss:1.2e}")
+            # self.train_logs['train_accuracy'].append(train_accuracy)
+            # self.train_logs['validation_accuracy'].append(valid_accuracy)
+            # self.train_logs['train_loss'].append(train_loss)
+            # self.train_logs['validation_loss'].append(valid_loss)
+            # print(f"Epoch {epoch}: train_accuracy={train_accuracy:.3f}, valid_accuracy={valid_accuracy:.3f}, train_loss={train_loss:1.2e}, valid_loss={valid_loss:1.2e}")
 
         return self.train_logs
 
@@ -141,7 +141,6 @@ class Dense:
 
     def forward(self, X):
         self.cache["X"] = X
-        # import pdb ; pdb.set_trace()
         return X @ self.params["W"] + self.params["b"]
 
     def backward(self, dA):
@@ -151,7 +150,7 @@ class Dense:
 
     def initialize(self, dim_input):
         assert len(dim_input) == 1
-        self.dim_ouput = (self.n_neuron,)
+        self.dim_output = (self.n_neuron,)
         bound = np.sqrt(6 / (dim_input[-1] + self.n_neuron))
         self.params["W"] = np.random.uniform(-bound, bound, size=(dim_input[-1], self.n_neuron))
         self.params["b"] = np.zeros((1, self.n_neuron))
@@ -182,6 +181,9 @@ def conv2d(X, f):
 
 class Convolution():
     def __init__(self, kernel_size, n_channel):
+        if type(kernel_size) == int:
+            kernel_size = (kernel_size, kernel_size)
+        assert (kernel_size[0]%2 == 1 and kernel_size[1]%2 == 1)
         self.kernel_size = tuple(kernel_size)
         self.n_channel = n_channel
         self.grads = {}
@@ -190,10 +192,11 @@ class Convolution():
     
     def forward(self, X):
         self.cache["X"] = X
+        # import pdb; pdb.set_trace()
         return conv2d(X, self.params["W"]) + self.params["b"]
         
     def initialize(self, dim_input):
-        self.dim_output = tuple(np.substract(dim_input[:2], self.kernel_size) + 1) + (self.n_channel,)
+        self.dim_output = tuple(np.subtract(dim_input[:2], self.kernel_size) + 1) + (self.n_channel,)
         
         # Inspired from Keras https://github.com/keras-team/keras/blob/7a39b6c62d43c25472b2c2476bd2a8983ae4f682/keras/initializers.py#L462
         receptive_field_size = np.prod(self.kernel_size[0])
@@ -207,10 +210,12 @@ class Convolution():
         # error dim: dim of output
         # See https://www.jefkine.com/general/2016/09/05/backpropagation-in-convolutional-neural-networks/
         self.grads["dW"] = np.transpose(conv2d(np.transpose(self.cache["X"], [3, 1, 2, 0]), np.transpose(error, [1, 2, 0, 3])), [1, 2, 0, 3])
-        self.grads["dB"] = error.sum(axis=(0, 1))
+        self.grads["dW"] /= error.shape[0]
+        self.grads["db"] = error.sum(axis=(1, 2)).mean(axis=0) # Sum across image height and width and average across samples in the batch
 
-        return conv2d(error, self.params["W"].transpose(2, 3))
-
+        padding = (0, *np.subtract(self.kernel_size, 1), 0) # No padding for first and last dimension
+        padding = np.tile(np.array(padding)[:, None], 2) # np.pad expect two numbers for each dimension (left, right)
+        return conv2d(np.pad(error, padding), self.params["W"])
 
     def update(self, lr):
         self.params["W"] -= lr * self.grads["dW"]
@@ -218,6 +223,19 @@ class Convolution():
 
 class Pooling():
     pass
+
+class Flatten():
+    def __init__(self):
+        self.cache = {}
+    def forward(self, X):
+        return X.reshape(X.shape[0], *self.dim_output)
+    def backward(self, error):
+        return error.reshape(error.shape[0], *self.dim_input)
+    def update(self, lr):
+        pass
+    def initialize(self, dim_input):
+        self.dim_input = dim_input
+        self.dim_output = (np.prod(dim_input),)
 
 
 class ReLU:
@@ -230,6 +248,6 @@ class ReLU:
     def backward(self, dZ):
         return dZ * (self.cache["A"] > 0).astype(np.float64)
     def initialize(self, dim_input):
-        self.dim_ouput = dim_input
+        self.dim_output = dim_input
     def update(self, lr):
         pass
