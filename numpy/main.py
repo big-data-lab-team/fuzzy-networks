@@ -18,7 +18,7 @@ def train(hyperparameters, sample_shape):
     exp.save(train_logs, 'train_logs')
     exp.save(hyperparameters, 'hyperparams')
     exp.save(nn, 'neural_network')
-    
+
     test_results = nn.evaluate()
     exp.save(test_results, 'test_results')
 

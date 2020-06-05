@@ -1,4 +1,5 @@
 .vscode/
+.virtual_documents/
 
 # This is ~360 MB so better not have it tracked by git
 # Run sh download_data.sh in the cnn dir instead
