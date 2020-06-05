@@ -3,7 +3,7 @@ import uuid
 import numpy as np
 
 import utils
-from neural_network import NN, Dense, ReLU, load_mnist
+from neural_network import NN, Convolution, Flatten, Dense, ReLU, load_mnist
 
 
 def train(hyperparameters, sample_shape):
