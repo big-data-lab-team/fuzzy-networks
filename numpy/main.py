@@ -7,7 +7,9 @@ from neural_network import NN
 from layers import Convolution, Flatten, Dense, ReLU
 from data_prep import load_mnist, load_cifar10
 
+
 def train(hyperparameters, sample_shape,nn_type):
+    
     hyperparameters['seed'] = np.random.randint(1e5)
 
     cifar10 = load_cifar10(flatten_input=(nn_type=='mlp')) # because mlp only processes 1D input
@@ -19,7 +21,7 @@ def train(hyperparameters, sample_shape,nn_type):
     elif hyperparameters['n_epochs']==1:
         perform_evaluation = True
 
-    train_logs = nn.train_loop(eval_acc=perform_evaluation)
+    train_logs = nn.train_loop(eval_each_epoch=perform_evaluation)
 
     exp = utils.ExperimentResults()
     exp.save(train_logs, 'train_logs')
