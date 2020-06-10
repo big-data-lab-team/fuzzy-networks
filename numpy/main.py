@@ -10,7 +10,7 @@ from data_prep import load_mnist, load_cifar10
 def train(hyperparameters, sample_shape,nn_type):
     hyperparameters['seed'] = np.random.randint(1e5)
 
-    cifar10 = load_cifar10(flatten=(nn_type=='mlp')) # because mlp only processes 1D input
+    cifar10 = load_cifar10(flatten_input=(nn_type=='mlp')) # because mlp only processes 1D input
     nn = NN(data=cifar10, **hyperparameters)
     
     perform_evaluation = False

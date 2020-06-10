@@ -32,7 +32,7 @@ def load_mnist(shape=(784,)):
     return train_data, val_data, test_data
 
 
-def load_cifar10(flatten=False):
+def load_cifar10(flatten_input=False):
     '''For MNIST the input imagines need to flattened whereas for CNN they have to be multi-dimensional'''
 
     def flatten(grayscaled):
@@ -45,7 +45,7 @@ def load_cifar10(flatten=False):
     train_images = tf.image.rgb_to_grayscale(train_images).numpy()
     test_images = tf.image.rgb_to_grayscale(test_images).numpy()
 
-    if flatten:
+    if flatten_input:
         train_images = flatten(train_images)
         test_images = flatten(test_images)
 
