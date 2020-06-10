@@ -35,15 +35,12 @@ def load_mnist(shape=(784,)):
 def load_cifar10(flatten_input=False):
     '''For MNIST the input imagines need to flattened whereas for CNN they have to be multi-dimensional'''
 
-    def flatten(grayscaled):
-        # Originally 32x32x1 grayscaled numpy array image
-        return np.array([np.reshape(x, (32*32,)) for x in grayscaled])
+    def flatten(images):
+        # Originally 32x32x3 grayscaled numpy array image
+        return np.array([np.reshape(x, (32*32*3,)) for x in images])
 
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.cifar10.load_data()
     assert(len(train_images) == len(train_labels))
-
-    train_images = tf.image.rgb_to_grayscale(train_images).numpy()
-    test_images = tf.image.rgb_to_grayscale(test_images).numpy()
 
     if flatten_input:
         train_images = flatten(train_images)
