@@ -43,7 +43,7 @@ def conv2d(X, f):
     strd = np.lib.stride_tricks.as_strided
     virtual_tensor = strd(X, shape=shape_virtual_tensor,
                           strides=strides_virtual_tensor)
-    return np.einsum('ijmn,bijklm->bkln', f, virtual_tensor)
+    return einsum2.einsum2('ijmn,bijklm->bkln', f, virtual_tensor)
     # b: batch number
     # i: height in kernel
     # j: width in kernel
