@@ -12,8 +12,14 @@ def train(hyperparameters, sample_shape,nn_type):
 
     cifar10 = load_cifar10(flatten=(nn_type=='mlp')) # because mlp only processes 1D input
     nn = NN(data=cifar10, **hyperparameters)
+    
+    perform_evaluation = False
+    if nn_type=='mlp':
+        perform_evaluation = True
+    elif hyperparameters['n_epochs']==1:
+        perform_evaluation = True
 
-    train_logs = nn.train_loop(eval_acc=(nn_type == 'mlp'))
+    train_logs = nn.train_loop(eval_acc=perform_evaluation)
 
     exp = utils.ExperimentResults()
     exp.save(train_logs, 'train_logs')
@@ -47,7 +53,7 @@ if neural_network_type == 'mlp':
         'epsilon': 1e-6,
         'lr': 5e-2,
         'batch_size': 64,
-        'n_epochs': 30
+        'n_epochs': 100
     }
     sample_shape = (784,)
 elif neural_network_type == 'cnn':
