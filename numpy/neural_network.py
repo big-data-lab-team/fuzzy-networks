@@ -60,14 +60,29 @@ class NN(object):
         return - (labels * np.log(prediction)).sum(axis=1).mean()
 
     def compute_loss_and_accuracy(self, X, y):
-        one_y = y
-        y = np.argmax(y, axis=1)  # Change y to integers
-        proba = self.predict_proba(X)
-        predictions = np.argmax(proba, axis=1)
-        accuracy = np.mean(y == predictions)
-        loss = self.loss(proba, one_y)
+        n_batches = int(np.ceil(X.shape[0] / self.batch_size))
+        accuracies = []
+        losses = []
+        for batch in range(n_batches):
+            minibatch_slice = slice(self.batch_size * batch, self.batch_size * (batch + 1))
+            minibatchX = X[minibatch_slice]
+            minibatchY_oh = y[minibatch_slice]
+            minibatchY = np.argmax(minibatchY_oh, axis=1)
 
-        return loss, accuracy, predictions
+            proba = self.predict_proba(minibatchX)
+            predictions = np.argmax(proba, axis=1)
+
+            accuracies.append(np.mean(minibatchY == predictions))
+            losses.append(self.loss(proba, minibatchY_oh))
+
+            n_char = int(50 * batch / n_batches)
+            print('\rEvaluation: [' + '=' * n_char + '>' + ' ' * (49 - n_char) + ']', end='')
+        print('\rEvaluation: [' + '=' * 50 + ']')
+
+        loss = np.array(losses).mean()
+        accuracy = np.array(accuracies).mean()
+
+        return loss, accuracy
 
     def predict_proba(self, X):
         return self.forward(X)
@@ -90,7 +105,7 @@ class NN(object):
                 self.backward(outputs, minibatchY)
                 self.update()
                 n_char = int(50 * batch / n_batches)
-                print('\r[' + '=' * n_char + '>' + ' ' * (49 - n_char) + ']',
+                print('\rTraining: [' + '=' * n_char + '>' + ' ' * (49 - n_char) + ']',
                       end='')
             print('\rTraining: [' + '=' * 50 + ']')
 
@@ -118,6 +133,5 @@ class NN(object):
 
     def evaluate(self):
         X_test, y_test = self.test
-        test_loss, test_accuracy, _ = \
-            self.compute_loss_and_accuracy(X_test, y_test)
+        test_loss, test_accuracy = self.compute_loss_and_accuracy(X_test, y_test)
         return test_loss, test_accuracy
