@@ -95,7 +95,7 @@ class Convolution():
         padding = (0, *np.subtract(self.kernel_size, 1), 0)
         # np.pad expect two numbers for each dimension (left, right)
         padding = np.tile(np.array(padding)[:, None], 2)
-        return conv2d(np.pad(error, padding), self.params["W"])
+        return conv2d(np.pad(error, padding), np.transpose(self.params["W"], [0, 1, 3, 2]))
 
     def update(self, lr):
         self.params["W"] -= lr * self.grads["dW"]
