@@ -32,14 +32,23 @@ def load_mnist(shape=(784,)):
     return train_data, val_data, test_data
 
 
-def load_cifar10(flat=False):
+def load_cifar10(flatten=False):
     '''For MNIST the input imagines need to flattened whereas for CNN they have to be multi-dimensional'''
+
+    def flatten(grayscaled):
+        # Originally 32x32x1 grayscaled numpy array image
+        return np.array([np.reshape(x, (32*32,)) for x in grayscaled])
+
     (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.cifar10.load_data()
     assert(len(train_images) == len(train_labels))
-    print('converting grayscale')
+
     train_images = tf.image.rgb_to_grayscale(train_images).numpy()
     test_images = tf.image.rgb_to_grayscale(test_images).numpy()
-    print('done converting')
+
+    if flatten:
+        train_images = flatten(train_images)
+        test_images = flatten(test_images)
+
     size = len(train_images)
     # randomly choose 20% of indices to be taken out of training set
     validation_indices = sorted(np.random.choice(size, int(size*0.2), replace=False))
@@ -64,10 +73,6 @@ def load_cifar10(flat=False):
 
     def normalize(array):
         return array.astype('float32') / 255.0
-
-    def flatten(threeDarray):
-        # Originally 32x32x3 for rgb channels
-        return [np.reshape(x, 3072) for x in threeDarray]
 
     def one_hot(array, n_classes=10):
         return np.eye(n_classes)[array].reshape(len(array), n_classes)
