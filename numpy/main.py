@@ -5,13 +5,13 @@ import numpy as np
 import utils
 from neural_network import NN
 from layers import Convolution, Flatten, Dense, ReLU
-from data_prep import load_mnist
+from data_prep import load_mnist, load_cifar10
 
 def train(hyperparameters, sample_shape):
     hyperparameters['seed'] = np.random.randint(1e5)
 
-    mnist = load_mnist(sample_shape)
-    nn = NN(data=mnist, **hyperparameters)
+    cifar10 = load_cifar10()
+    nn = NN(data=cifar10, **hyperparameters)
 
     train_logs = nn.train_loop(eval_acc=(neural_network_type == 'mlp'))
 
