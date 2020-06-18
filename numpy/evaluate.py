@@ -25,7 +25,6 @@ def evaluate(experiment_dir, docker_image_tag, subsample_size):
     result_name = f'test_predictions_{docker_image_tag}_{uuid.uuid4().hex}'
     exp.save(y_pred_proba, result_name)
 
-
 try:
     experiment_folder = sys.argv[1]
     docker_tag = sys.argv[2]
@@ -36,6 +35,5 @@ try:
     subsample = int(sys.argv[3])
 except:
     subsample = None
-
 
 evaluate(experiment_folder, docker_tag, subsample)
