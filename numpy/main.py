@@ -8,17 +8,17 @@ from layers import Convolution, Flatten, Dense, ReLU
 from data_prep import load_mnist, load_cifar10
 
 
-def train(hyperparameters, sample_shape,nn_type):
-    
+def train(hyperparameters, sample_shape, nn_type):
+
     hyperparameters['seed'] = np.random.randint(1e5)
 
-    cifar10 = load_cifar10(flatten_input=(nn_type=='mlp')) # because mlp only processes 1D input
+    cifar10 = load_cifar10(flatten_input=(nn_type == 'mlp'))  # because mlp only processes 1D input
     nn = NN(data=cifar10, **hyperparameters)
-    
+
     perform_evaluation = False
-    if nn_type=='mlp':
+    if nn_type == 'mlp':
         perform_evaluation = True
-    elif hyperparameters['n_epochs']==1:
+    elif hyperparameters['n_epochs'] == 1:
         perform_evaluation = True
 
     train_logs = nn.train_loop(eval_each_epoch=perform_evaluation)
@@ -35,7 +35,7 @@ def train(hyperparameters, sample_shape,nn_type):
 def evaluate(experiment_dir, docker_image_tag, sample_shape):
     exp = utils.ExperimentResults(experiment_dir)
     nn = exp.load('neural_network')
-    train, val, test = load_mnist(sample_shape)
+    train, val, test = nn.train, nn.valid, nn.test
 
     X, y = test
     X = X[:100]  # Using all test examples would take too long
@@ -51,7 +51,7 @@ neural_network_type = sys.argv[1]
 
 if neural_network_type == 'mlp':
     hyperparameters = {
-        'architecture': (Dense(1024), ReLU(), Dense(256), ReLU(), Dense(10)), # 1024 because 32x32 for cifar10
+        'architecture': (Dense(1024), ReLU(), Dense(256), ReLU(), Dense(10)),  # 1024 because 32x32 for cifar10
         'epsilon': 1e-6,
         'lr': 5e-2,
         'batch_size': 64,
@@ -93,6 +93,6 @@ if sys.argv[2] == 'evaluate':
     experiment_dir = sys.argv[3]
     evaluate(experiment_dir, docker_image_tag, sample_shape)
 elif sys.argv[2] == 'train':
-    train(hyperparameters, sample_shape,neural_network_type)
+    train(hyperparameters, sample_shape, neural_network_type)
 else:
     raise ValueError(f'Unknown operation {sys.argv[2]}')
