@@ -1,7 +1,13 @@
 from layers import Convolution, Flatten, Dense, ReLU
 import json
+import pprint
+
 
 mlp_config = {
+    'nn_type': 'mlp',
+    'dataset_name': 'mnist',
+    'eval_while_training': False,
+    'mnist_sample_shape': (784,),
     'hyperparameters': {
         'architecture': (
             Dense(1024),
@@ -14,13 +20,14 @@ mlp_config = {
         'lr': 5e-2,
         'batch_size': 64,
         'n_epochs': 3,
-        'mnist_sample_shape': (784,)
     },
-    'dataset_type': 'mnist',
-    'eval_during_training': False,
 }
 
 cnn_config = {
+    'nn_type': 'cnn',
+    'dataset_name': 'mnist',
+    'eval_while_training': False,
+    'mnist_sample_shape': (28, 28, 1),
     'hyperparameters': {
         'architecture': (
             Convolution(3, 32),
@@ -36,11 +43,5 @@ cnn_config = {
         'lr': 5e-2,
         'batch_size': 64,
         'n_epochs': 1,
-        'mnist_sample_shape': (28, 28, 1)
     },
-    'dataset_type': 'mnist',
-    'eval_during_training': False,
 }
-
-string = json.dumps(cnn_config,)
-print(string)
