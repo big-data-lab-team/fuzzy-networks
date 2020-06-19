@@ -1,5 +1,6 @@
 import sys
 import numpy as np
+import timeit
 
 import utils
 from data_prep import load_mnist, load_cifar10
@@ -27,12 +28,18 @@ def train(config):
 
     nn = NN(data=dataset, **config['hyperparameters'])
 
+    start = timeit.default_timer()
+    
     train_logs = nn.train_loop(eval_each_epoch=config['eval_while_training'])
+    
+    elapsed = round(timeit.default_timer()-start,4)
+    print(f'training runtime: {elapsed} seconds')
 
     exp = utils.ExperimentResults()
     exp.save(train_logs, 'train_logs')
     exp.save(config, 'config')
     exp.save(nn, 'neural_network')
+    exp.save(elapsed,'training_runtime')
 
     test_results = nn.evaluate()
     exp.save(test_results, 'test_results')
