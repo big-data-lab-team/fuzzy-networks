@@ -1,0 +1,50 @@
+╰─ py main_cnn.py
+> /home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py(220)backward()
+-> return conv2d(np.pad(error, padding), self.params["W"])
+(Pdb) l
+215  
+216             padding = (0, *np.subtract(self.kernel_size, 1), 0) # No padding for first and last dimension
+217             padding = np.tile(np.array(padding)[:, None], 2) # np.pad expect two numbers for each dimension (left, right)
+218             import pdb; pdb.set_trace()
+219  
+220  ->         return conv2d(np.pad(error, padding), self.params["W"])
+221  
+222         def update(self, lr):
+223             self.params["W"] -= lr * self.grads["dW"]
+224             self.params["b"] -= lr * self.grads["db"]
+225  
+(Pdb) np.pad(error,padding).shape
+(64, 26, 26, 32)
+(Pdb) self.params['W'].shape
+(3, 3, 32, 32)
+(Pdb) c
+> /home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py(220)backward()
+-> return conv2d(np.pad(error, padding), self.params["W"])
+(Pdb) self.params['W'].shape
+(3, 3, 32, 32)
+(Pdb) np.pad(error,padding).shape
+(64, 28, 28, 32)
+(Pdb) c
+> /home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py(220)backward()
+-> return conv2d(np.pad(error, padding), self.params["W"])
+(Pdb) self.params['W'].shape
+(3, 3, 1, 32)
+(Pdb) np.pad(error,padding).shape
+(64, 30, 30, 32)
+(Pdb) c
+Traceback (most recent call last):
+  File "main_cnn.py", line 29, in <module>
+    train_logs = nn.train_loop()
+  File "/home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py", line 111, in train_loop
+    self.backward(outputs, minibatchY)
+  File "/home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py", line 74, in backward
+    error = layer.backward(error)
+  File "/home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py", line 220, in backward
+    return conv2d(np.pad(error, padding), self.params["W"])
+  File "/home/ribal/university/research/usra/fuzzy-networks/numpy/neural_network.py", line 173, in conv2d
+    return einsum2.einsum2('ijmn,bijklm->bkln', f, virtual_tensor)
+  File "/home/ribal/anaconda3/envs/fuzzy/lib/python3.7/site-packages/einsum2/einsum2.py", line 74, in einsum2
+    return _einsum2(a, list(a_subs), b, list(b_subs), list(out_subs), *args[3:], **kwargs)
+  File "/home/ribal/anaconda3/envs/fuzzy/lib/python3.7/site-packages/einsum2/einsum2.py", line 107, in _einsum2
+    raise ValueError("a,b shapes don't match")
+ValueError: a,b shapes don't match

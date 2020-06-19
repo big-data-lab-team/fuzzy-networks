@@ -1,0 +1,22 @@
+[==================================================]
+Traceback (most recent call last):
+  File "main.py", line 94, in <module>
+    train(hyperparameters, sample_shape,neural_network_type)
+  File "main.py", line 22, in train
+    train_logs = nn.train_loop(eval_acc=perform_evaluation)
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/neural_network.py", line 100, in train_loop
+    self.compute_loss_and_accuracy(X_train, y_train)
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/neural_network.py", line 65, in compute_loss_and_accuracy
+    proba = self.predict_proba(X)
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/neural_network.py", line 73, in predict_proba
+    return self.forward(X)
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/neural_network.py", line 45, in forward
+    x = layer.forward(x)
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/layers.py", line 69, in forward
+    return conv2d(X, self.params["W"]) + self.params["b"]
+  File "/home/ribal/university/research/usra/repos/fuzzy-networks/numpy/layers.py", line 46, in conv2d
+    return np.einsum('ijmn,bijklm->bkln', f, virtual_tensor)
+  File "<__array_function__ internals>", line 6, in einsum
+  File "/home/ribal/anaconda3/envs/fuzzy/lib/python3.7/site-packages/numpy/core/einsumfunc.py", line 1356, in einsum
+    return c_einsum(*operands, **kwargs)
+MemoryError: Unable to allocate 7.48 GiB for an array with shape (40000, 28, 28, 32) and data type float64
