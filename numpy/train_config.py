@@ -19,7 +19,7 @@ mlp_config = {
         'epsilon': 1e-6,
         'lr': 5e-2,
         'batch_size': 64,
-        'n_epochs': 3,
+        'n_epochs': 1,
     },
 }
 

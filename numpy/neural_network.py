@@ -111,8 +111,8 @@ class NN(object):
 
             if eval_each_epoch:
                 self.log_performances(epoch)
-        if not eval_each_epoch:
-            self.log_performances(epoch)
+        # if not eval_each_epoch:           # comment this out because it's useless to eval during training on clusters
+        #     self.log_performances(epoch)  # comment this out because it's useless to eval during training on clusters
 
         return self.train_logs
 
