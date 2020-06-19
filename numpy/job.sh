@@ -5,4 +5,4 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=64
 
-srun python3 train.py mlp
+srun python3 benchmark.py
