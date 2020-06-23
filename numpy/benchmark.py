@@ -16,7 +16,7 @@ for run in epoch_run:
     mlp_cifar10['dataset_name'] = 'cifar10'
     
     cnn_mnist['hyperparameters']['n_epochs'] = run
-    cnn_cnn['hyperparameters']['n_epochs'] = run
+    cnn_cifar10['hyperparameters']['n_epochs'] = run
     cnn_cifar10['dataset_name'] = 'cifar10'
     
     train.train(mlp_mnist)
