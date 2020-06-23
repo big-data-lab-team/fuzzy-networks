@@ -5,3 +5,4 @@
 # Run sh download_data.sh in the cnn dir instead
 cifar-10-python.tar.gz
 cifar-10-batches-py/
+cifar10.pickle

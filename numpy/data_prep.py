@@ -39,8 +39,12 @@ def load_cifar10(flatten_input=False):
         # Originally 32x32x3 grayscaled numpy array image
         return np.array([np.reshape(x, (32*32*3,)) for x in images])
 
-    (train_images, train_labels), (test_images, test_labels) = tf.keras.datasets.cifar10.load_data()
-    assert(len(train_images) == len(train_labels))
+    data_file = 'cifar10.pickle'
+
+    with open(data_file, 'rb') as f:
+        data = pickle.load(f)
+
+    train_images, train_labels, test_images, test_labels = data[0], data[1], data[2], data[3]
 
     if flatten_input:
         train_images = flatten(train_images)
@@ -79,3 +83,5 @@ def load_cifar10(flatten_input=False):
     testing = normalize(test_images), one_hot(test_labels)
 
     return training, validation, testing
+
+load_cifar10()
