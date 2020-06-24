@@ -1,13 +1,13 @@
 type of network, dataset, learning rate, batch size, epochs, training time (hh:mm:ss), accuracy (%)
-mlp,mnist,0.05,64, 1,00h 00m 10s,92.7747,
-mlp,mnist,0.05,64, 1,00h 00m 17s,92.5856,
-mlp,mnist,0.05,64, 10,00h 02m 53s,97.8503,
-mlp,mnist,0.05,64, 50,00h 15m 06s,98.2982,
-mlp,mnist,0.05,64, 100,00h 30m 27s,98.1986,
-mlp,mnist,0.05,64, 500,02h 25m 41s,98.2186,
-cnn,mnist,0.05,64, 1,00h 08m 02s,96.7954,
-cnn,mnist,0.05,64, 10,01h 18m 53s,98.6764,
-mlp,mnist,0.05,64, 1000,04h 41m 43s,98.2186,
-cnn,mnist,0.05,64, 50,06h 35m 04s,98.8157,
-cnn,mnist,0.05,64, 100,13h 10m 13s,98.8555,
-~                                            
+mlp,mnist,0.05,64, 1,00h 00m 10s,92.7747
+mlp,mnist,0.05,64, 1,00h 00m 17s,92.5856
+mlp,mnist,0.05,64, 10,00h 02m 53s,97.8503
+mlp,mnist,0.05,64, 50,00h 15m 06s,98.2982
+mlp,mnist,0.05,64, 100,00h 30m 27s,98.1986
+mlp,mnist,0.05,64, 500,02h 25m 41s,98.2186
+cnn,mnist,0.05,64, 1,00h 08m 02s,96.7954
+cnn,mnist,0.05,64, 10,01h 18m 53s,98.6764
+mlp,mnist,0.05,64, 1000,04h 41m 43s,98.2186
+cnn,mnist,0.05,64, 50,06h 35m 04s,98.8157
+cnn,mnist,0.05,64, 100,13h 10m 13s,98.8555
+  
