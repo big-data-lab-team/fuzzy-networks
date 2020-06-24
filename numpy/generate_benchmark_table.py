@@ -58,7 +58,7 @@ def generate_csv(results_dir='./results'):
             with open(accuracy_file, 'rb') as f:
                 accuracy = pickle.load(f)[1]
                 accuracy = round(accuracy*100, 4)
-                new_line += f'{accuracy},\n'
+                new_line += f'{accuracy}\n'
 
             csv_str += new_line
 
