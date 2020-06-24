@@ -8,7 +8,19 @@ import pprint
 def convert_time(seconds):
     '''This function takes a time in seconds and converts it
     to the hours, minutes, seconds format'''
-    return f'00:00:{int(round(seconds,0))}'
+    seconds = int(round(seconds, 0))
+    hours = seconds//3600
+    minutes = (seconds - hours*3600)//60
+    remaining_seconds = seconds - hours*3600 - minutes*60 
+    
+    assert(remaining_seconds < 60)
+    assert(minutes < 60)
+
+    str_hh = f'0{hours}' if hours < 10 else hours
+    str_mm = f'0{minutes}' if minutes < 10 else minutes
+    str_ss = f'0{remaining_seconds}' if remaining_seconds < 10 else remaining_seconds
+
+    return f'{str_hh}h {str_mm}m {str_ss}s'
 
 
 def generate_csv(results_dir='./results'):
@@ -52,8 +64,8 @@ def generate_csv(results_dir='./results'):
 
             with open(report_file, 'w') as f:
                 f.write(csv_str)
-            
-            print(f'Generated report can be found in {report_file}')
+
+    print(f'Generated report can be found in {report_file}')
 
 
 if __name__ == '__main__':
