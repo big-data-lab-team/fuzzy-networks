@@ -11,8 +11,8 @@ def convert_time(seconds):
     seconds = int(round(seconds, 0))
     hours = seconds//3600
     minutes = (seconds - hours*3600)//60
-    remaining_seconds = seconds - hours*3600 - minutes*60 
-    
+    remaining_seconds = seconds - hours*3600 - minutes*60
+
     assert(remaining_seconds < 60)
     assert(minutes < 60)
 
@@ -60,10 +60,12 @@ def generate_csv(results_dir='./results'):
                 accuracy = round(accuracy*100, 4)
                 new_line += f'{accuracy}\n'
 
+
             csv_str += new_line
 
-            with open(report_file, 'w') as f:
-                f.write(csv_str)
+    csv_str = csv_str[:-1]
+    with open(report_file, 'w') as f:
+        f.write(csv_str)
 
     print(f'Generated report can be found in {report_file}')
 
