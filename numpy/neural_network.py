@@ -111,8 +111,8 @@ class NN(object):
 
             if eval_each_epoch:
                 self.log_performances(epoch)
-        if not eval_each_epoch:
-            self.log_performances(epoch)
+        # if not eval_each_epoch:           # comment this out because it's useless to eval during training on clusters
+        #     self.log_performances(epoch)  # comment this out because it's useless to eval during training on clusters
 
         return self.train_logs
 
@@ -134,4 +134,5 @@ class NN(object):
     def evaluate(self):
         X_test, y_test = self.test
         test_loss, test_accuracy = self.compute_loss_and_accuracy(X_test, y_test)
+        print(f'Final evaluation: test_accuracy={test_accuracy}, test_loss={test_loss}')
         return test_loss, test_accuracy

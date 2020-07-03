@@ -1,0 +1,16 @@
+type of network, dataset, learning rate, batch size, epochs, training time (hh:mm:ss), accuracy (%)
+mlp,mnist,0.05,64, 50,00h 18m 16s,98.129
+cnn,mnist,0.05,64, 1,00h 09m 16s,96.7257
+mlp,cifar10,0.05,64, 1,00h 01m 36s,40.1174
+mlp,cifar10,0.05,64, 10,00h 13m 44s,49.0346
+cnn,cifar10,0.05,64, 1,00h 20m 38s,42.1576
+mlp,mnist,0.05,64, 1,00h 00m 22s,92.705
+mlp,mnist,0.05,64, 10,00h 03m 37s,97.6712
+cnn,mnist,0.05,64, 10,01h 35m 23s,98.6266
+cnn,cifar10,0.05,64, 50,16h 47m 08s,56.9865
+cnn,cifar10,0.05,64, 10,03h 18m 58s,58.1608
+mlp,mnist,0.05,64, 100,00h 35m 30s,98.3081
+cnn,mnist,0.05,64, 100,17h 06m 19s,98.9252
+mlp,cifar10,0.05,64, 100,02h 29m 43s,50.7464
+cnn,mnist,0.05,64, 50,07h 37m 48s,98.8455
+mlp,cifar10,0.05,64, 50,01h 15m 34s,49.2834
